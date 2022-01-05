@@ -18,24 +18,20 @@ map, debounce, throttle等等
 Subscriber:
 訂閱者，接收最後送出的數據
 
-Combine:
-
-Combine expect schedulers to operate as serial queues
-
 ## PropertyWrapper
 ### projectedValue
     $
 The `projectedValue` is the property accessed with the `$` operator.
 
 ## @Published
-    @Published var someString: String = ""
-projectedValue = Published<Value>.Publisher
-
 Publishing a property with the `@Published` attribute creates a publisher of this type
 Important: The `@Published` attribute is class constrained. Use it with properties of classes, not with non-class types like structures.
 
-Published
-對於一般類別的修飾詞，添加後會擁有Publish的特性
+    @Published var someString: String = ""
+
+    $someString -> Published<Value>.Publisher
+
+
     - Subject
         - PassthroughSubject -> 類似Flow (?) 不會保存值，透過send發射value, suitable for event like tap action
         - CurrentValueSubject -> 類似LiveData，有實際的value保存值，suitable for state
@@ -51,6 +47,11 @@ Published
 @Published var inputString: String = ""
 
 
+## subscribe on vs receive on
+
+Combine:
+
+Combine expect schedulers to operate as serial queues
 
 
 Ref:
