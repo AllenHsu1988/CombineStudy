@@ -2,12 +2,14 @@
 Applying the $ prefix to a property wrapped value returns its projectedValue
 
 ## Publisher, Operator, Subscriber:
+```Swift
     +------------------+      +--------------+      +------------------+        
     |     Publisher    |      |   Opertaor   |      |    Subscriber    |        
     |                  |      |              |      |                  |        
     |     <Output>     |----->|              |----->|     <Input>      |        
     |     <Failure>    |----->|              |----->|     <Failure>    |        
     +------------------+      +--------------+      +------------------+ 
+```
 
 #### Publisher:
 具體實作通知subsciber的類別
@@ -37,69 +39,71 @@ map, debounce, throttle等等
 The `projectedValue` is the property accessed with the `$` operator.
 
 ## @Published
-Publishing a property with the `@Published` attribute creates a publisher of this type
+Publishing a property with the `@Published` attribute creates a publisher of this type  
 Important: The `@Published` attribute is class constrained. Use it with properties of classes, not with non-class types like structures.
 
-    @Published var someString: String = ""
+```Swift
+@Published var someString: String = ""
+$someString -> Published<Value>.Publisher
+```
 
-    $someString -> Published<Value>.Publisher
+- Subject
+    - PassthroughSubject -> 類似Flow (?) 不會保存值，透過send發射value, suitable for event like tap action
+    - CurrentValueSubject -> 類似LiveData，有實際的value保存值，suitable for state
+
+AnyPublisher  
+    Publisher 的具體實現，其本身沒有任何重要的屬性，並且會傳遞來自其上游發布者的元素和完成值  
+currentValuePublisher = _currentValueSubject.eraseToAnyPublisher()  
 
 
-    - Subject
-        - PassthroughSubject -> 類似Flow (?) 不會保存值，透過send發射value, suitable for event like tap action
-        - CurrentValueSubject -> 類似LiveData，有實際的value保存值，suitable for state
-
-AnyPublisher
-    Publisher 的具體實現，其本身沒有任何重要的屬性，並且會傳遞來自其上游發布者的元素和完成值
-currentValuePublisher = _currentValueSubject.eraseToAnyPublisher()
-
-
-Published
-@Published var inputString: String = ""
-
+Published  
+@Published var inputString: String = ""  
 
 ## subscribe on vs receive on
-    /// In contrast with ``Publisher/receive(on:options:)``, which affects downstream messages, ``Publisher/subscribe(on:options:)`` ///  /// changes the execution context of upstream messages.
+    /// In contrast with ``Publisher/receive(on:options:)``, which affects downstream messages, ``Publisher/subscribe(on:options:)``
+    /// changes the execution context of upstream messages.
 如同官方文件所說，subscribeOn影響的對象為upstream，receiveOn影響的為downstream
 ### subscribeOn
-Specifies the scheduler on which to perform subscribe, cancel, and request operations.
+Specifies the scheduler on which to perform subscribe, cancel, and request operations.  
 subscribeOn影響的部分有subscribe、cancel、還有request operation，比如：
-
-    struct SomePublisher: Publisher {
-        typealias Output = String
-        typealias Failure = Never
-        
-        func receive<S>(subscriber: S) where S : Subscriber, Never == S.Failure, String == S.Input {
-            debugPrint("IsMainThread: \(Thread.isMainThread)")
-            //此處會因subscribeOn給的Scheduler不同而執行在不同的執行緒中
-            subscriber.receive(subscription: Subscriptions.empty)
-            _ = subscriber.receive("test")
-        }
+```Swift
+struct SomePublisher: Publisher {
+    typealias Output = String
+    typealias Failure = Never
+    
+    func receive<S>(subscriber: S) where S : Subscriber, Never == S.Failure, String == S.Input {
+        debugPrint("IsMainThread: \(Thread.isMainThread)")
+        //此處會因subscribeOn給的Scheduler不同而執行在不同的執行緒中
+        subscriber.receive(subscription: Subscriptions.empty)
+        _ = subscriber.receive("test")
     }
-
-    Deferred { () -> Future<String, Never> in
-        //還有這邊
-        Future { promise in
-            //以及這邊
-            promise(.success(""))
-        }
+}
+```
+```Swift
+Deferred { () -> Future<String, Never> in
+    //還有這邊
+    Future { promise in
+        //以及這邊
+        promise(.success(""))
     }
+}
+```
 
 ### receiveOn
-Specifies the scheduler on which to receive elements from the publisher.
+Specifies the scheduler on which to receive elements from the publisher.  
 receiveOn影響的部分為下游
-
-    SomePublisher()                                        
-        .receive(on: backgroundQueue)  -+                  
-        .map { val in                   |                  
-            //background queue          |  作用區域            
-            val                         |                  
-        }                              -+                  
-        .receive(on: mainQueue)        -+                  
-        .sink { val in                  |  作用區域            
-            // main queue               |                  
-        }                              -+   
-
+```Swift
+SomePublisher()                                        
+    .receive(on: backgroundQueue) // -+                  
+    .map { val in                 //  |                  
+        //background queue        //  |  作用區域            
+        val                       //  |                  
+    }                             // -+                  
+    .receive(on: mainQueue)       // -+                  
+    .sink { val in                //  |  作用區域            
+        // main queue             //  |                  
+    }                             // -+   
+```
 
 Combine expect schedulers to operate as serial queues
 
