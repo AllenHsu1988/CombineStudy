@@ -38,7 +38,7 @@ Important: The `@Published` attribute is class constrained. Use it with properti
 
 ```Swift
 @Published var someString: String = ""
-$someString -> Published<Value>.Publisher
+$someString //Published<Value>.Publisher
 ```
 
 - ### Subject
@@ -104,10 +104,10 @@ SomePublisher()
 ## subscribe on & receive on 閱讀方式
 ```Swift
                                 ^    Deferred { () -> Future<String, Never> in                                              
-                                |    Future { promise in                                                                    
-                                |        print("Subscribe: Thread:\(Thread.current)")                                       
-                                |        promise(.success("abc"))                                                           
-                                |    }                                                                                      
+                                |        Future { promise in                                                                    
+                                |            print("Subscribe: Thread:\(Thread.current)")                                       
+                                |            promise(.success("abc"))                                                           
+                                |        }                                                                                      
                                 |    }                                                                                      
                                 |    .subscribe(on: backgroundQueue)                                                        
                                 |    .subscribe(on: mainQueue) //無作用                                                        
