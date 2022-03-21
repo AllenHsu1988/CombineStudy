@@ -1,4 +1,6 @@
 # Combine:
+Customize handling of asynchronous events by combining event-processing operators.  
+iOS 13+
 ## Publisher, Operator, Subscriber:
 ```Swift
     +------------------+      +--------------+      +------------------+        
@@ -146,3 +148,5 @@ https://www.appypie.com/observedobject-published-swiftui-how-to
 https://www.calincrist.com/blog/2020-04-12-how-to-get-notified-for-changes-in-swiftui/
 
 [Publisher與 Subscriber 的 Lifecycle + 彈珠圖] https://ithelp.ithome.com.tw/articles/10217930
+
+[Swift — Combine Publishers] https://medium.com/jeremy-xue-s-blog/swift-combine-publishers-299a5b0e2860
